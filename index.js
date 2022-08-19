@@ -22,16 +22,21 @@ async function run() {
 
     const database = client.db("medi_trina");
     const serviceCollection = database.collection("services");
-
+    const bookingCollection = database.collection("bookings");
+    //GET API - READ DATA
     app.get('/service',async(req,res)=>{
         const query = {};
         const cursor=serviceCollection.find(query);
         const services=await cursor.toArray();
         res.send(services)
-
-
-
     })
+
+     // POST API - ADD VOLUNTEER
+     app.post("/booking", async (req, res) => {
+        const booking = req.body;
+        const result = await bookingCollection.insertOne(booking);
+        res.json(result);
+      });
 
   } finally {
   }
