@@ -23,6 +23,8 @@ async function run() {
     const database = client.db("medi_trina");
     const serviceCollection = database.collection("services");
     const bookingCollection = database.collection("bookings");
+    const userCollection = database.collection("users");
+
     //GET API - READ DATA
     app.get("/service", async (req, res) => {
       const query = {};
@@ -30,6 +32,21 @@ async function run() {
       const services = await cursor.toArray();
       res.send(services);
     });
+
+    app.put('/user/:email',async(req,res)=>{
+      const email=req.params.email;
+      const user = req.body;
+      const filter={email:email};
+      const options = { upsert: true };
+
+      const updateDoc = {
+        $set: user,
+      };
+
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+
+    })
 
     // Warning: This is not the proper way to query multiple collection. 
     // After learning more about mongodb. use aggregate, lookup, pipeline, match, group
@@ -64,8 +81,15 @@ async function run() {
      * app.get('/booking/:id') // get a specific booking
      * app.post('/booking') // add a new booking
      * app.patch('/booking/:id) //
+     * app.put('booking/:id') // upsert ==> update (if exists) or insert (if doesn't exist)
      * app.delete('/booking/:id) //
      */
+    app.get('/booking',async(req,res)=>{
+      const patient=req.query.patient;
+      const query={patient:patient};
+      const bookings= await bookingCollection.find(query).toArray();
+      res.send(bookings);
+    })
 
     // POST API - ADD Bookings
     app.post("/booking", async (req, res) => {
